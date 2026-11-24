@@ -86,23 +86,45 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .sm{padding:7px 14px;font-size:14px}
 #msg{margin:14px 0;font-weight:600}.bad{color:#f87171}
+[hidden]{display:none!important}
+.hero-logo{display:block;max-width:min(320px,70vw);max-height:120px;width:auto;margin-bottom:28px}
+.strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:22px -4px 0;padding:0 4px 6px;scrollbar-width:thin}
+.strip button{flex:none;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);cursor:pointer;scroll-snap-align:start}
+.strip img{display:block;height:120px;width:auto;max-width:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.chip{background:transparent;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:7px 16px;font:500 14px var(--head);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--glow);color:var(--accent);border-color:var(--accent)}
+.gal{columns:3 240px;column-gap:12px}
+.gal button{display:block;width:100%;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--surface);break-inside:avoid}
+.gal img{display:block;width:100%;height:auto;transition:transform .4s}
+.gal button:hover img{transform:scale(1.03)}
+.pv{position:fixed;inset:0;z-index:45;background:rgba(5,8,14,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 16px 24px}
+.pv>img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:8px}
+.pv p{margin-top:12px;color:var(--muted);min-height:1.5em}
+.pn{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid var(--line2);background:rgba(10,14,23,.7);color:var(--text);font-size:30px;line-height:1;cursor:pointer}
+.pn.r{left:auto;right:12px}
+.pg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.pg div{position:relative}
+.pg img{height:84px;width:auto;max-width:none;border-radius:6px;display:block;margin:0}
+.pg .btn{position:absolute;top:4px;right:4px;padding:0 9px;line-height:24px;font-size:16px}
 @media(max-width:760px){nav a:not(.btn){display:none}.two{grid-template-columns:1fr;gap:32px}form{grid-template-columns:1fr}.wrap{padding:76px 20px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <header>
-  <a class="brand" href="#home"><img src="logo.png" alt="" onerror="this.remove()"><span id="co"></span></a>
-  <nav><a href="#services">Services</a><a href="#work">Our work</a><a href="#about">About</a><a class="btn" href="#quote">Get a quote</a></nav>
+  <a class="brand" href="#home"><img id="blogo" alt="" hidden><span id="co"></span></a>
+  <nav><a href="#services">Services</a><a href="#work">Our work</a><a href="#gallery">Gallery</a><a href="#about">About</a><a class="btn" href="#quote">Get a quote</a></nav>
 </header>
 
 <section class="hero" id="home"><div class="wrap">
-  <h1 id="hh"></h1><p class="lead" id="ht"></p><p class="tagline" id="tg"></p>
+  <img id="hlogo" class="hero-logo" alt="" hidden><h1 id="hh"></h1><p class="lead" id="ht"></p><p class="tagline" id="tg"></p>
   <a class="btn" href="#quote">Get a quote</a> <a class="btn ghost" href="#work">See our work</a>
 </div></section>
 
 <section id="services"><div class="wrap"><h2>What we do</h2><div class="grid" id="svc"></div></div></section>
 <section id="work" class="alt"><div class="wrap"><h2>Our work</h2><div class="work" id="wk"></div></div></section>
+<section id="gallery" hidden><div class="wrap"><h2>Gallery</h2><div class="chips" id="gch"></div><div class="gal" id="gl"></div></div></section>
 <section id="about"><div class="wrap"><div class="two"><div><h2>About us</h2><p id="ab_t"></p></div><div class="contact" id="ct"></div></div></div></section>
 
 <section id="quote" class="alt"><div class="wrap"><h2>Get a quote</h2>
@@ -122,6 +144,7 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 <footer id="ft"></footer>
 
 <div class="lb" id="lb" hidden><button class="btn ghost x" id="lbx">Close</button><div id="lbc"></div></div>
+<div class="pv" id="pv" hidden><button class="btn ghost x" id="pvx">Close</button><button class="pn" id="pvp" aria-label="Previous photo">&lsaquo;</button><img id="pvi" alt=""><button class="pn r" id="pvn" aria-label="Next photo">&rsaquo;</button><p id="pvc"></p></div>
 <div id="admin" hidden><div class="in" id="ab"></div></div>
 
 <script>
@@ -129,7 +152,7 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 const CONFIG={URL:'https://tfkaawetfhtrvsgkysce.supabase.co',KEY:'sb_publishable_FMHQlRMhTIHlngJks9Rxqg_cyoM79m_'};
 
 const DEF={company:'Highnoon Stage Productions',tagline:'Lighting. Audio. Vision. Staging.',hero_heading:'We build the show.',hero_text:'Full-service production for events, venues and stages.',services:['Lighting','Audio','Vision','Staging'].map(t=>({title:t,text:'Add your description here.'})),about:'Tell people who you are and what you do.',email:'',phone:'',instagram:'',colors:{accent:'#38BDF8',background:'#0A0E17',text:'#F8FAFC'}};
-let site={content:DEF,portfolio:[]},code=sessionStorage.hn||'',ed=null,cur='Text';
+let photos=[],site={content:DEF,portfolio:[]},code=sessionStorage.hn||'',ed=null,cur='Text';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -145,20 +168,25 @@ function render(){
   const c=site.content,s=document.documentElement.style;let k={...DEF.colors,...c.colors};if(k.accent==='#E8A317'&&k.background==='#16181A')k=DEF.colors;
   s.setProperty('--accent',k.accent);s.setProperty('--bg',k.background);s.setProperty('--text',k.text);
   document.title=c.company;
-  $('#co').textContent=c.company;$('#hh').textContent=c.hero_heading;$('#ht').textContent=c.hero_text;$('#tg').textContent=c.tagline;
+  $('#co').textContent=c.company;
+  [$('#hlogo'),$('#blogo')].forEach(i=>{i.hidden=false;i.onerror=()=>{i.hidden=true};i.src=c.logo||'logo.png'});$('#hh').textContent=c.hero_heading;$('#ht').textContent=c.hero_text;$('#tg').textContent=c.tagline;
   $('#home').style.backgroundImage=c.hero_image?`url("${c.hero_image}")`:'none';
-  $('#svc').innerHTML=(c.services||[]).map(v=>`<div class="svc"><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p></div>`).join('');
+  $('#svc').innerHTML=(c.services||[]).map((v,i)=>{const ps=photos.filter(p=>p.section=='service:'+i);return `<div class="svc"><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p>${ps.length?`<div class="strip">${ps.map(p=>`<button data-ph="${p.id}" data-set="service:${i}" aria-label="View photo"><img src="${esc(p.thumb)}" alt="" loading="lazy"></button>`).join('')}</div>`:''}</div>`}).join('');
   $('#wk').innerHTML=site.portfolio.length?site.portfolio.map((p,i)=>`<button class="card" data-i="${i}">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">`:''}<div><small>${esc(p.category)}</small><h3>${esc(p.title)}</h3></div></button>`).join(''):'<p class="empty">Projects coming soon.</p>';
   $('#ab_t').textContent=c.about;
   const ig=c.instagram?(c.instagram.startsWith('http')?c.instagram:'https://instagram.com/'+c.instagram.replace('@','')):'';
   $('#ct').innerHTML=(c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:'')+(c.phone?`<a href="tel:${esc(c.phone.replace(/\s/g,''))}">${esc(c.phone)}</a>`:'')+(ig?`<a href="${esc(ig)}" target="_blank" rel="noopener">Instagram</a>`:'');
   $('#ft').textContent='© '+new Date().getFullYear()+' '+c.company;
+  renderGal();
 }
 
 async function load(){
   try{const c=JSON.parse(localStorage.hn_site);site={content:{...DEF,...c.content},portfolio:c.portfolio||[]}}catch{}
+  try{photos=JSON.parse(localStorage.hn_ph)||[]}catch{}
   render();
-  if(CONFIG.URL)try{const d=await rpc('get_site');site={content:{...DEF,...d.content},portfolio:d.portfolio||[]};render();try{localStorage.hn_site=JSON.stringify(site)}catch{}}catch{}
+  if(!CONFIG.URL)return;
+  try{const d=await rpc('get_site');site={content:{...DEF,...d.content},portfolio:d.portfolio||[]};render();try{localStorage.hn_site=JSON.stringify(site)}catch{}}catch{}
+  try{photos=await rpc('get_photos');render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}}catch{}
 }
 
 $('#wk').onclick=e=>{const b=e.target.closest('.card');if(!b)return;const p=site.portfolio[+b.dataset.i];
@@ -177,6 +205,39 @@ $('#qf').onsubmit=async e=>{
   }catch(x){m.className='bad';m.textContent=CONFIG.URL?'Your enquiry did not send: '+x.message:'The form is not connected yet. Please email us instead.'}
   b.disabled=false;
 };
+
+
+/* ---------- photos: gallery and full-screen viewer ---------- */
+let gf='all',vs=[],vi=0;const full={};
+const galList=()=>photos.filter(p=>gf=='all'||p.section==gf);
+function renderGal(){
+  const sv=site.content.services||[],keys=[...new Set(photos.map(p=>p.section))];
+  if(gf!='all'&&!keys.includes(gf))gf='all';
+  const nm=k=>k=='gallery'?'More':((sv[+k.split(':')[1]]||{}).title||k);
+  $('#gallery').hidden=!photos.length;
+  $('#gch').innerHTML=keys.length>1?[['all','All'],...keys.map(k=>[k,nm(k)])].map(([k,l])=>`<button class="chip" data-f="${esc(k)}" aria-pressed="${gf==k}">${esc(l)}</button>`).join(''):'';
+  $('#gl').innerHTML=galList().map(p=>`<button data-ph="${p.id}" data-set="gal" aria-label="View photo"><img src="${esc(p.thumb)}" alt="${esc(p.caption||'')}" loading="lazy"></button>`).join('');
+}
+async function showPh(){
+  const p=vs[vi];if(!p)return;
+  $('#pv').hidden=false;document.body.style.overflow='hidden';
+  const im=$('#pvi');im.src=full[p.id]||p.thumb;$('#pvc').textContent=p.caption||'';
+  $('#pvp').hidden=$('#pvn').hidden=vs.length<2;
+  if(!full[p.id])try{const d=await rpc('get_photo',{p_id:p.id});full[p.id]=d;if(vs[vi]&&vs[vi].id==p.id)im.src=d}catch{}
+}
+const stepPh=d=>{vi=(vi+d+vs.length)%vs.length;showPh()};
+const closePh=()=>{$('#pv').hidden=true;document.body.style.overflow=''};
+document.addEventListener('click',e=>{
+  const f=e.target.closest('[data-f]');if(f){gf=f.dataset.f;return renderGal()}
+  const b=e.target.closest('[data-ph]');if(!b)return;
+  vs=b.dataset.set=='gal'?galList():photos.filter(p=>p.section==b.dataset.set);
+  vi=Math.max(0,vs.findIndex(p=>p.id==b.dataset.ph));showPh();
+});
+$('#pvx').onclick=closePh;$('#pvp').onclick=()=>stepPh(-1);$('#pvn').onclick=()=>stepPh(1);
+document.addEventListener('keydown',e=>{if($('#pv').hidden)return;if(e.key=='Escape')closePh();if(e.key=='ArrowLeft')stepPh(-1);if(e.key=='ArrowRight')stepPh(1)});
+let tx=0;$('#pv').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+$('#pv').addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)stepPh(d<0?1:-1)});
+const fit=(f,max,type,q)=>new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL(type,q))};im.onerror=no;im.src=URL.createObjectURL(f)});
 
 /* ---------- admin (open the site with #admin on the end of the address) ---------- */
 function pick(cb,max=1600){const i=document.createElement('input');i.type='file';i.accept='image/*';
@@ -200,10 +261,11 @@ function start(){
   tab(cur);
 }
 function tab(n){
-  cur=n;let h=`<h1>Edit site</h1><div class="bar">${['Text','Work','Enquiries','Look','Password'].map(t=>`<button class="tb${t==n?' on':''}" data-act="tab" data-n="${t}">${t}</button>`).join('')}<button class="tb" data-act="exit">Exit</button></div>`;
+  cur=n;let h=`<h1>Edit site</h1><div class="bar">${['Text','Work','Photos','Enquiries','Look','Password'].map(t=>`<button class="tb${t==n?' on':''}" data-act="tab" data-n="${t}">${t}</button>`).join('')}<button class="tb" data-act="exit">Exit</button></div>`;
   const c=ed.content;
   if(n=='Text'){
     h+=fld('Company name','content.company',c.company)+fld('Tagline','content.tagline',c.tagline)+fld('Main heading','content.hero_heading',c.hero_heading)+fld('Intro line','content.hero_text',c.hero_text,1)
+    +`<div class="box"><strong>Logo (a PNG with a see-through background looks best)</strong>${c.logo?`<img src="${esc(c.logo)}" alt="">`:''}<div class="row"><button class="btn sm" data-act="logo">Choose logo</button>${c.logo?'<button class="btn ghost sm" data-act="logox">Remove</button>':''}</div></div>`
     +`<div class="box"><strong>Hero photo</strong>${c.hero_image?`<img src="${esc(c.hero_image)}" alt="">`:''}<div class="row"><button class="btn sm" data-act="hero">Choose photo</button>${c.hero_image?'<button class="btn ghost sm" data-act="herox">Remove</button>':''}</div></div>`
     +c.services.map((v,i)=>`<div class="box"><strong>Service ${i+1}</strong>${fld('Title',`content.services.${i}.title`,v.title)}${fld('Description',`content.services.${i}.text`,v.text,1)}</div>`).join('')
     +fld('About us','content.about',c.about,1)+fld('Email','content.email',c.email)+fld('Phone','content.phone',c.phone)+fld('Instagram (handle or link)','content.instagram',c.instagram)
@@ -212,6 +274,9 @@ function tab(n){
     h+=ed.portfolio.map((p,i)=>`<div class="box">${p.image?`<img src="${esc(p.image)}" alt="">`:''}${fld('Title',`portfolio.${i}.title`,p.title)}${fld('Type (e.g. Lighting)',`portfolio.${i}.category`,p.category)}${fld('Venue',`portfolio.${i}.venue`,p.venue)}${fld('Details',`portfolio.${i}.details`,p.details,1)}
     <div class="row"><button class="btn ghost sm" data-act="photo" data-i="${i}">${p.image?'Change photo':'Add photo'}</button><button class="btn ghost sm" data-act="up" data-i="${i}">Move up</button><button class="btn ghost sm" data-act="dn" data-i="${i}">Move down</button><button class="btn ghost sm" data-act="del" data-i="${i}">Delete</button></div></div>`).join('')
     +`<div class="row"><button class="btn ghost" data-act="add">Add project</button><button class="btn" data-act="savew">Save changes</button></div>`;
+  }else if(n=='Photos'){
+    const secs=[...c.services.map((v,i)=>['service:'+i,v.title]),['gallery','General gallery (extra photos)']];
+    h+=secs.map(([k,t])=>`<div class="box"><strong>${esc(t)}</strong><div class="pg">${photos.filter(p=>p.section==k).map(p=>`<div><img src="${esc(p.thumb)}" alt=""><button class="btn sm" data-act="phdel" data-i="${p.id}" aria-label="Delete photo">&times;</button></div>`).join('')}</div><div class="row"><button class="btn ghost sm" data-act="phadd" data-k="${k}">Add photos</button></div></div>`).join('')+'<p class="empty">Photos added to a service appear as a scroll strip on its card. Every photo also appears in the Gallery.</p>';
   }else if(n=='Look'){
     h+=fld('Accent colour','content.colors.accent',c.colors.accent).replace('<input','<input type="color"')+fld('Background','content.colors.background',c.colors.background).replace('<input','<input type="color"')+fld('Text','content.colors.text',c.colors.text).replace('<input','<input type="color"')+`<button class="btn" data-act="savec">Save changes</button>`;
   }else if(n=='Password'){
@@ -234,6 +299,18 @@ $('#ab').onclick=async e=>{
     if(a=='exit'){location.hash='';load();return}
     if(a=='login'){const v=$('#pw').value;if(await rpc('admin_check',{p_code:v})){code=v;sessionStorage.hn=v;start()}else say('Wrong password.',1);return}
     if(a=='tab')return tab(b.dataset.n);
+    if(a=='logo'){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{if(!inp.files[0])return;try{ed.content.logo=await fit(inp.files[0],700,'image/png');site.content=ed.content;render();tab('Text')}catch{say('Could not read that image.',1)}};inp.click();return}
+    if(a=='logox'){delete ed.content.logo;site.content=ed.content;render();return tab('Text')}
+    if(a=='phadd'){const k=b.dataset.k,inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;
+      inp.onchange=async()=>{const fs=[...inp.files];let n=0,bad='';
+        for(const f of fs){say('Uploading '+(++n)+' of '+fs.length+'...');
+          try{const [img,th]=await Promise.all([fit(f,1400,'image/jpeg',.78),fit(f,420,'image/jpeg',.7)]);
+            const id=await rpc('admin_add_photo',{p_code:code,p_section:k,p_caption:'',p_thumb:th,p_image:img});
+            photos.push({id,section:k,caption:'',thumb:th})}catch(x){bad=x.message;break}}
+        render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}
+        tab('Photos');say(bad||'Done. Photos are live.',!!bad)};
+      inp.click();return}
+    if(a=='phdel'){if(!confirm('Delete this photo?'))return;await rpc('admin_delete_photo',{p_code:code,p_id:i});photos=photos.filter(p=>p.id!=i);render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}return tab('Photos')}
     if(a=='hero')return pick(d=>{ed.content.hero_image=d;site.content=ed.content;render();tab('Text')},2000);
     if(a=='herox'){delete ed.content.hero_image;site.content=ed.content;render();return tab('Text')}
     if(a=='photo')return pick(d=>{w[i].image=d;tab('Work')});
