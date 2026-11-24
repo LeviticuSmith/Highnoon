@@ -39,11 +39,11 @@ nav .btn:hover{background:var(--accent);color:var(--bg)}
 .lead{font-size:clamp(17px,2vw,21px);max-width:40ch;margin-bottom:16px;color:var(--muted)}
 .tagline{font:500 14px var(--mono);margin-bottom:32px;color:var(--accent)}
 .hero .btn+.btn{margin-left:8px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
-.svc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:30px 28px 36px;min-height:240px;transition:border-color .2s,box-shadow .2s}
+.grid{display:grid;grid-template-columns:1fr;gap:20px}
+.svc{display:grid;grid-template-columns:minmax(180px,1fr) 2fr;gap:14px 48px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:36px 32px 32px;transition:border-color .2s,box-shadow .2s}
 .svc:hover{border-color:var(--accent);box-shadow:0 12px 40px var(--glow)}
-.svc::before{content:"";display:block;width:32px;height:3px;border-radius:2px;background:var(--accent);margin-bottom:22px}
-.svc h3{font-size:26px;margin-bottom:12px}
+.svc::before{content:"";grid-column:1/-1;display:block;width:32px;height:3px;border-radius:2px;background:var(--accent);margin-bottom:6px}
+.svc h3{font-size:clamp(28px,4vw,40px);margin:0}
 .svc p{white-space:pre-line;color:var(--muted)}
 .work{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .card{position:relative;aspect-ratio:4/3;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0;cursor:pointer;overflow:hidden;color:var(--text);text-align:left;font:inherit;transition:border-color .2s,box-shadow .2s}
@@ -88,9 +88,9 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 #msg{margin:14px 0;font-weight:600}.bad{color:#f87171}
 [hidden]{display:none!important}
 .hero-logo{display:block;max-width:min(300px,70vw);max-height:230px;width:auto;margin-bottom:28px}
-.strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;margin:22px -4px 0;padding:0 4px 6px;scrollbar-width:thin}
+.strip{grid-column:1/-1;display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:10px 0 0;padding:0 0 10px;scrollbar-width:thin}
 .strip button{flex:none;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg);cursor:pointer;scroll-snap-align:start}
-.strip img{display:block;height:120px;width:auto;max-width:none}
+.strip img{display:block;height:clamp(220px,34vw,380px);width:auto;max-width:none}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
 .chip{background:transparent;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:7px 16px;font:500 14px var(--head);cursor:pointer}
 .chip[aria-pressed=true]{background:var(--glow);color:var(--accent);border-color:var(--accent)}
@@ -107,6 +107,7 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 .pg div{position:relative}
 .pg img{height:84px;width:auto;max-width:none;border-radius:6px;display:block;margin:0}
 .pg .btn{position:absolute;top:4px;right:4px;padding:0 9px;line-height:24px;font-size:16px}
+@media(max-width:760px){.svc{grid-template-columns:1fr;padding:28px 20px 24px}}
 @media(max-width:760px){nav a:not(.btn){display:none}.two{grid-template-columns:1fr;gap:32px}form{grid-template-columns:1fr}.wrap{padding:76px 20px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
