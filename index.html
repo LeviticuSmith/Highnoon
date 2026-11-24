@@ -114,7 +114,7 @@ footer{padding:32px 24px calc(32px + env(safe-area-inset-bottom));border-top:1px
 <body>
 <header>
   <a class="brand" href="#home"><img id="blogo" alt="" hidden><span id="co"></span></a>
-  <nav><a href="#services">Services</a><a href="#work">Our work</a><a href="#gallery">Gallery</a><a href="#about">About</a><a class="btn" href="#quote">Get a quote</a></nav>
+  <nav><a href="#services">Services</a><a href="#work">Our work</a><a href="#gallery" id="ng" hidden>Gallery</a><a href="#about">About</a><a class="btn" href="#quote">Get a quote</a></nav>
 </header>
 
 <section class="hero" id="home"><div class="wrap">
@@ -214,7 +214,7 @@ function renderGal(){
   const sv=site.content.services||[],keys=[...new Set(photos.map(p=>p.section))];
   if(gf!='all'&&!keys.includes(gf))gf='all';
   const nm=k=>k=='gallery'?'More':((sv[+k.split(':')[1]]||{}).title||k);
-  $('#gallery').hidden=!photos.length;
+  $('#gallery').hidden=$('#ng').hidden=!photos.length;
   $('#gch').innerHTML=keys.length>1?[['all','All'],...keys.map(k=>[k,nm(k)])].map(([k,l])=>`<button class="chip" data-f="${esc(k)}" aria-pressed="${gf==k}">${esc(l)}</button>`).join(''):'';
   $('#gl').innerHTML=galList().map(p=>`<button data-ph="${p.id}" data-set="gal" aria-label="View photo"><img src="${esc(p.thumb)}" alt="${esc(p.caption||'')}" loading="lazy"></button>`).join('');
 }
@@ -237,7 +237,8 @@ $('#pvx').onclick=closePh;$('#pvp').onclick=()=>stepPh(-1);$('#pvn').onclick=()=
 document.addEventListener('keydown',e=>{if($('#pv').hidden)return;if(e.key=='Escape')closePh();if(e.key=='ArrowLeft')stepPh(-1);if(e.key=='ArrowRight')stepPh(1)});
 let tx=0;$('#pv').addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
 $('#pv').addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)stepPh(d<0?1:-1)});
-const fit=(f,max,type,q)=>new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL(type,q))};im.onerror=no;im.src=URL.createObjectURL(f)});
+const fit=async(f,max,type,q)=>{let src;try{src=await createImageBitmap(f)}catch{src=await new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>no(new Error('This photo could not be read. Try a JPG or PNG.'));im.src=URL.createObjectURL(f)})}
+  const s=Math.min(1,max/Math.max(src.width,src.height)),c=document.createElement('canvas');c.width=Math.round(src.width*s);c.height=Math.round(src.height*s);c.getContext('2d').drawImage(src,0,0,c.width,c.height);return c.toDataURL(type,q)};
 
 /* ---------- admin (open the site with #admin on the end of the address) ---------- */
 function pick(cb,max=1600){const i=document.createElement('input');i.type='file';i.accept='image/*';
@@ -301,14 +302,14 @@ $('#ab').onclick=async e=>{
     if(a=='tab')return tab(b.dataset.n);
     if(a=='logo'){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=async()=>{if(!inp.files[0])return;try{ed.content.logo=await fit(inp.files[0],700,'image/png');site.content=ed.content;render();tab('Text')}catch{say('Could not read that image.',1)}};inp.click();return}
     if(a=='logox'){delete ed.content.logo;site.content=ed.content;render();return tab('Text')}
-    if(a=='phadd'){const k=b.dataset.k,inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;
-      inp.onchange=async()=>{const fs=[...inp.files];let n=0,bad='';
+    if(a=='phadd'){const k=b.dataset.k,inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.style.display='none';document.body.append(inp);
+      inp.onchange=async()=>{const fs=[...inp.files];let n=0,ok=0,fail=0,first='';
         for(const f of fs){say('Uploading '+(++n)+' of '+fs.length+'...');
-          try{const [img,th]=await Promise.all([fit(f,1400,'image/jpeg',.78),fit(f,420,'image/jpeg',.7)]);
+          try{const img=await fit(f,1400,'image/jpeg',.78),th=await fit(f,420,'image/jpeg',.7);
             const id=await rpc('admin_add_photo',{p_code:code,p_section:k,p_caption:'',p_thumb:th,p_image:img});
-            photos.push({id,section:k,caption:'',thumb:th})}catch(x){bad=x.message;break}}
-        render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}
-        tab('Photos');say(bad||'Done. Photos are live.',!!bad)};
+            photos.push({id,section:k,caption:'',thumb:th});ok++}catch(x){fail++;first=first||(x&&x.message)||'could not be read'}}
+        inp.remove();render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}
+        tab('Photos');say(!fs.length?'No photos were picked.':(ok+' of '+fs.length+' photos added.'+(fail?' '+fail+' failed: '+first:'')),!ok)};
       inp.click();return}
     if(a=='phdel'){if(!confirm('Delete this photo?'))return;await rpc('admin_delete_photo',{p_code:code,p_id:i});photos=photos.filter(p=>p.id!=i);render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}return tab('Photos')}
     if(a=='hero')return pick(d=>{ed.content.hero_image=d;site.content=ed.content;render();tab('Text')},2000);
