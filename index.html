@@ -217,7 +217,14 @@ function renderGal(){
   $('#gallery').hidden=$('#ng').hidden=!photos.length;
   $('#gch').innerHTML=keys.length>1?[['all','All'],...keys.map(k=>[k,nm(k)])].map(([k,l])=>`<button class="chip" data-f="${esc(k)}" aria-pressed="${gf==k}">${esc(l)}</button>`).join(''):'';
   $('#gl').innerHTML=galList().map(p=>`<button data-ph="${p.id}" data-set="gal" aria-label="View photo"><img src="${esc(p.thumb)}" alt="${esc(p.caption||'')}" loading="lazy"></button>`).join('');
+  watch($('#svc'));watch($('#gl'));
 }
+/* sharpen previews: swap in the full-size photo as each one scrolls into view */
+async function upg(im){const b=im.closest('[data-ph]');if(!b)return;const id=+b.dataset.ph;
+  if(!full[id])try{full[id]=await rpc('get_photo',{p_id:id})}catch{return}
+  if(im.isConnected&&full[id])im.src=full[id]}
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);upg(e.target)}}),{rootMargin:'300px'}):null;
+function watch(root){if(io)root.querySelectorAll('[data-ph] img').forEach(i=>io.observe(i))}
 async function showPh(){
   const p=vs[vi];if(!p)return;
   $('#pv').hidden=false;document.body.style.overflow='hidden';
@@ -305,7 +312,7 @@ $('#ab').onclick=async e=>{
     if(a=='phadd'){const k=b.dataset.k,inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;inp.style.display='none';document.body.append(inp);
       inp.onchange=async()=>{const fs=[...inp.files];let n=0,ok=0,fail=0,first='';
         for(const f of fs){say('Uploading '+(++n)+' of '+fs.length+'...');
-          try{const img=await fit(f,1400,'image/jpeg',.78),th=await fit(f,420,'image/jpeg',.7);
+          try{const img=await fit(f,1400,'image/jpeg',.78),th=await fit(f,560,'image/jpeg',.72);
             const id=await rpc('admin_add_photo',{p_code:code,p_section:k,p_caption:'',p_thumb:th,p_image:img});
             photos.push({id,section:k,caption:'',thumb:th});ok++}catch(x){fail++;first=first||(x&&x.message)||'could not be read'}}
         inp.remove();render();try{localStorage.hn_ph=JSON.stringify(photos)}catch{}
