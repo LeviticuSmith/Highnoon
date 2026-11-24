@@ -270,7 +270,7 @@ function start(){
   tab(cur);
 }
 function tab(n){
-  cur=n;let h=`<h1>Edit site</h1><div class="bar">${['Text','Work','Photos','Enquiries','Look','Password'].map(t=>`<button class="tb${t==n?' on':''}" data-act="tab" data-n="${t}">${t}</button>`).join('')}<button class="tb" data-act="exit">Exit</button></div>`;
+  cur=n;let h=`<h1>Edit site</h1><p class="empty">Page version: stacked services, sharp photos</p><div class="bar">${['Text','Work','Photos','Enquiries','Look','Password'].map(t=>`<button class="tb${t==n?' on':''}" data-act="tab" data-n="${t}">${t}</button>`).join('')}<button class="tb" data-act="exit">Exit</button></div>`;
   const c=ed.content;
   if(n=='Text'){
     h+=fld('Company name','content.company',c.company)+fld('Tagline','content.tagline',c.tagline)+fld('Main heading','content.hero_heading',c.hero_heading)+fld('Intro line','content.hero_text',c.hero_text,1)
